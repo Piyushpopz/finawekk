@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FocusWeek — plan it, lock in, finish it</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{--bg:#f6f3ee;--surface:#fff;--ink:#1b1a17;--mute:#77716a;--line:#e6e0d6;--accent:#e8590c;--accent-soft:#fff0e6;--ok:#1f9d55;--ok-soft:#e3f6ea;--bad:#d6303f;--bad-soft:#fde8ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e11;--surface:#17171c;--ink:#f2efe9;--mute:#8d8a94;--line:#2a2a31;--accent:#ff7a2f;--accent-soft:#2a1a10;--ok:#3ddc84;--ok-soft:#10261a;--bad:#ff5c6c;--bad-soft:#2b1316}}
+:root[data-theme="dark"]{--bg:#0e0e11;--surface:#17171c;--ink:#f2efe9;--mute:#8d8a94;--line:#2a2a31;--accent:#ff7a2f;--accent-soft:#2a1a10;--ok:#3ddc84;--ok-soft:#10261a;--bad:#ff5c6c;--bad-soft:#2b1316}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif}
+button,input{font:inherit;color:inherit}.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}.mute{color:var(--mute);font-size:.82rem}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr) 330px;gap:16px;max-width:1500px;margin:0 auto;padding:16px 16px 90px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.side{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 110px);overflow:auto;display:flex;flex-direction:column;gap:14px}
+h1{font-size:1.15rem;margin:0}h2{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+.wk{width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:12px;padding:9px 10px;cursor:pointer;display:block;margin-bottom:4px}
+.wk:hover{background:var(--bg)}.wk.sel{background:var(--accent-soft);border-color:var(--accent)}.wk b{font-size:.88rem}.wk small{display:block;color:var(--mute);font-size:.74rem;margin-top:2px}
+.wklist{max-height:320px;overflow-y:auto;padding-right:4px}
+.dgrp{border-left:3px solid var(--ok);padding:2px 0 2px 10px;margin-bottom:10px}.dgrp div{font-size:.8rem;margin-top:3px}
+.main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card.today{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}.card.past{opacity:.82}
+.card header{display:flex;justify-content:space-between;align-items:center}
+.tasks{display:flex;flex-direction:column;gap:8px;min-height:36px}.empty{padding:6px 2px}
+.task{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:12px;padding:9px 10px;border:1px solid var(--line)}
+.task.done{background:var(--ok-soft);border-color:transparent}.task.done .ttitle{text-decoration:line-through;opacity:.7}
+.task.baggage{background:var(--bad-soft);border-color:transparent}
+.tmain{flex:1;min-width:0}.ttitle{font-size:.9rem;font-weight:600;word-break:break-word}.tmeta{font-size:.74rem;color:var(--mute);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chip{font-size:.66rem;padding:2px 7px;border-radius:99px;font-weight:700;letter-spacing:.04em}
+.chip.now{background:var(--accent);color:#fff;margin-left:8px}.chip.carry{background:var(--accent-soft);color:var(--accent)}.chip.ok{background:var(--ok);color:#fff}.chip.bad{background:var(--bad);color:#fff}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;transition:transform .12s,background .15s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.sm{padding:6px 11px;font-size:.8rem;border-radius:10px}.btn.go{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.btn.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.x{background:none;border:none;color:var(--mute);font-size:1.2rem;cursor:pointer;padding:0 4px}.x:hover{color:var(--bad)}
+.add{display:flex;gap:6px}.add input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;outline:none}.add input:focus{border-color:var(--accent)}.add input[type=text]{flex:1}.add input[type=number]{width:62px}
+.focus{position:sticky;top:16px;align-self:start;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ringwrap{position:relative;width:210px;height:210px}.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.glow{position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle,var(--accent-soft),transparent 70%);z-index:0}
+.time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}.time b{font-size:2.1rem}
+.msg{min-height:44px;font-size:.88rem;color:var(--ink);padding:0 6px}.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:14px;z-index:20}
+.prog{flex:1;height:10px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line)}.prog i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .6s}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.sheet{background:var(--surface);border-radius:20px;max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:18px;border:1px solid var(--line)}
+.toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:.86rem;z-index:60;max-width:92vw;text-align:center}
+@media (max-width:1100px){.app{grid-template-columns:1fr}.focus{order:-1;position:static}.side{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useEffect,useRef}=React;
+const html=htm.bind(React.createElement);
+const KEY='focusweek_v1';
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((parse(a)-parse(b))/864e5);
+const fmt=s=>{const d=parse(s);return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2)};
+const dow=s=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][parse(s).getDay()];
+const wkOf=(a,d)=>Math.floor(diff(d,a)/7);
+const wkEnd=(a,w)=>addDays(a,w*7+6);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const load=()=>{try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return null};
+const save=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+const clock=sec=>{const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return (h?h+':':'')+pad(m)+':'+pad(s)};
+const MSGS=['Phone in another room. Right?','One target. One timer. Nothing else exists.','Boring is fine. Boring is how marks get made.','Try it yourself for 8 minutes before you peek at a solution.','Urges peak and pass. Ride it, keep solving.','You said you can study. Prove it for this block.','Feb-you is watching this session.','Stuck? Note the doubt, move on, ask later.'];
+
+function rollover(st,today){
+  let changed=false;
+  const tasks=st.tasks.map(t=>{
+    if(t.status!=='pending'||t.date>=today||(st.active&&st.active.id===t.id&&false))return t;
+    changed=true;
+    if(today>wkEnd(st.anchor,t.wk))return {...t,status:'baggage',reason:'week'};
+    return {...t,date:today,carried:(t.carried||0)+1};
+  });
+  return changed?{...st,tasks}:null;
+}
+
+function Task({t,today,busy,onStart,onDel}){
+  const r=useRef();
+  useEffect(()=>{gsap.from(r.current,{x:-14,opacity:0,duration:.35,ease:'power2.out'})},[]);
+  return html`<div ref=${r} className=${'task '+t.status}>
+    <div className="tmain"><div className="ttitle">${t.title}</div>
+      <div className="tmeta"><span className="mono">${t.hrs}h</span>
+        ${t.carried&&t.status==='pending'?html`<span className="chip carry">↪ carried ×${t.carried}</span>`:null}
+        ${t.status==='done'?html`<span className="chip ok">DONE</span>`:null}
+        ${t.status==='baggage'?html`<span className="chip bad">BAGGAGE</span>`:null}</div></div>
+    ${t.status==='pending'&&t.date===today?html`<button className="btn sm go" disabled=${busy} onClick=${()=>onStart(t)}>Start</button>`:null}
+    ${t.status==='pending'?html`<button className="x" title="Delete" onClick=${()=>onDel(t.id)}>×</button>`:null}
+  </div>`;
+}
+
+function Day({date,tasks,today,busy,onAdd,onStart,onDel}){
+  const [title,setTitle]=useState(''),[hrs,setHrs]=useState('1');
+  const past=date<today;
+  const submit=e=>{e.preventDefault();const h=parseFloat(hrs);if(!title.trim()||!(h>0))return;onAdd(date,title.trim(),Math.min(h,12));setTitle('')};
+  const tot=tasks.filter(t=>t.status!=='baggage').reduce((a,t)=>a+t.hrs,0);
+  return html`<section className=${'card'+(date===today?' today':'')+(past?' past':'')}>
+    <header><div><b>${dow(date)}</b> <span className="mute">${fmt(date)}</span>${date===today?html`<span className="chip now">TODAY</span>`:null}</div><span className="mute mono">${tot}h</span></header>
+    <div className="tasks">${tasks.length?tasks.map(t=>html`<${Task} key=${t.id} t=${t} today=${today} busy=${busy} onStart=${onStart} onDel=${onDel}/>`):html`<div className="empty mute">${past?'Nothing was planned':'No targets yet'}</div>`}</div>
+    ${past?null:html`<form className="add" onSubmit=${submit}>
+      <input type="text" placeholder="Add target…" value=${title} onChange=${e=>setTitle(e.target.value)} maxLength="80"/>
+      <input type="number" step="0.25" min="0.25" max="12" title="Hours" value=${hrs} onChange=${e=>setHrs(e.target.value)}/>
+      <button className="btn sm go" type="submit">Add</button></form>`}
+  </section>`;
+}
+
+function Focus({active,task,rem,msg,onPause,onResume,onDone,onLost,todayLeft}){
+  const C=2*Math.PI*88;
+  const frac=active?rem/active.total:1;
+  const run=active&&active.endAt;
+  const glow=useRef();
+  useEffect(()=>{
+    if(!run||!glow.current)return;
+    const tw=gsap.to(glow.current,{scale:1.07,duration:1.8,yoyo:true,repeat:-1,ease:'sine.inOut'});
+    return()=>{tw.kill();gsap.set(glow.current,{scale:1})};
+  },[run]);
+  return html`<aside className="panel focus">
+    <h2 style=${{margin:0}}>Focus — you won't get this time back</h2>
+    <div className="ringwrap"><div className="glow" ref=${glow}></div>
+      <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="var(--line)" strokeWidth="8"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke=${rem===0&&active?'var(--ok)':'var(--accent)'} strokeWidth="8" strokeLinecap="round" strokeDasharray=${C} strokeDashoffset=${C*(1-frac)} style=${{transition:'stroke-dashoffset .5s linear'}}/></svg>
+      <div className="time"><b className="mono">${active?clock(rem):'--:--'}</b><span className="mute">${active?(run?'running':(rem===0?"time's up":'paused')):'idle'}</span></div></div>
+    ${active&&task?html`<div><b>${task.title}</b><div className="mute">${task.hrs}h block</div></div>
+      <div className="msg">${rem===0?"Time's up. Did you finish it honestly?":msg}</div>
+      <div className="row">
+        ${rem>0?(run?html`<button className="btn" onClick=${onPause}>⏸ Pause</button>`:html`<button className="btn go" onClick=${onResume}>▶ Resume</button>`):null}
+        <button className="btn ok" onClick=${onDone}>✓ Done</button>
+        <button className="btn bad" onClick=${onLost}>I lost</button></div>
+      <div className="mute">"I lost" sends it to the Baggage bin.</div>`
+    :html`<div className="msg">${todayLeft?'Pick a target from today’s card and hit Start. Phone away first.':'Nothing pending today. Plan tomorrow, then rest your head.'}</div>`}
+  </aside>`;
+}
+
+function App(){
+  const [s,setS]=useState(()=>load()||{anchor:iso(new Date()),tasks:[],active:null});
+  const [now,setNow]=useState(Date.now());
+  const [bag,setBag]=useState(false);
+  const [toast,setToast]=useState('');
+  const today=iso(new Date(now));
+  const [sel,setSel]=useState(()=>Math.max(0,wkOf(s.anchor,iso(new Date()))));
+  const pom=useRef({id:null,n:0});
+  const tref=useRef();
+
+  useEffect(()=>{const i=setInterval(()=>setNow(Date.now()),500);return()=>clearInterval(i)},[]);
+  useEffect(()=>{save(s)},[s]);
+  useEffect(()=>{setS(p=>rollover(p,today)||p)},[today]);
+
+  const a=s.active;
+  const rem=a?(a.endAt?Math.max(0,Math.round((a.endAt-now)/1000)):a.remaining):0;
+  const task=a?s.tasks.find(t=>t.id===a.id):null;
+  const elapsed=a?a.total-rem:0;
+
+  useEffect(()=>{
+    if(a&&a.endAt&&rem===0){setS(p=>({...p,active:{...p.active,remaining:0,endAt:null}}));say("Time's up! Be honest — done or lost?")}
+  },[rem,a&&a.endAt]);
+  useEffect(()=>{
+    if(!a)return;
+    const n=Math.floor(elapsed/1500);
+    if(pom.current.id!==a.id)pom.current={id:a.id,n};
+    else if(n>pom.current.n){pom.current.n=n;say('25 min done 🍅 Stand up, drink water, eyes off screen for 2 min.')}
+  },[elapsed,a&&a.id]);
+  useEffect(()=>{if(toast&&tref.current)gsap.fromTo(tref.current,{y:-20,opacity:0},{y:0,opacity:1,duration:.35,ease:'back.out(1.6)'})},[toast]);
+  useEffect(()=>{gsap.from('.card',{y:18,opacity:0,duration:.45,stagger:.05,ease:'power2.out'})},[sel]);
+  useEffect(()=>{if(bag)gsap.from('.sheet',{y:30,opacity:0,duration:.35,ease:'power2.out'})},[bag]);
+
+  function say(m){setToast(m);clearTimeout(say.t);say.t=setTimeout(()=>setToast(''),4500)}
+  const upd=(id,patch)=>setS(p=>({...p,tasks:p.tasks.map(t=>t.id===id?{...t,...patch}:t)}));
+  const add=(date,title,hrs)=>setS(p=>({...p,tasks:[...p.tasks,{id:uid(),title,hrs,date,orig:date,wk:wkOf(p.anchor,date),status:'pending'}]}));
+  const del=id=>setS(p=>({...p,tasks:p.tasks.filter(t=>t.id!==id)}));
+  const start=t=>{if(s.active)return say('Finish or drop the running task first.');setS(p=>({...p,active:{id:t.id,total:Math.round(t.hrs*3600),remaining:Math.round(t.hrs*3600),endAt:Date.now()+t.hrs*3600000}}));say('Locked in. Go.')};
+  const pause=()=>setS(p=>({...p,active:{...p.active,remaining:rem,endAt:null}}));
+  const resume=()=>setS(p=>({...p,active:{...p.active,endAt:Date.now()+p.active.remaining*1000}}));
+  const finish=kind=>{
+    const spent=a.total-rem;
+    setS(p=>({...p,active:null,tasks:p.tasks.map(t=>t.id===a.id?(kind==='done'?{...t,status:'done',doneDate:today,spent}:{...t,status:'baggage',reason:'lost',spent}):t)}));
+    if(kind==='done'){say('Done ✔ That one is banked.');gsap.fromTo('.ringwrap',{scale:1},{scale:1.1,yoyo:true,repeat:1,duration:.25})}
+    else say('Into the baggage bin. Reschedule it when you are ready.');
+  };
+  const moveToday=id=>{upd(id,{status:'pending',date:today,wk:wkOf(s.anchor,today),reason:undefined});say('Moved to today.')};
+
+  const cur=Math.max(0,wkOf(s.anchor,today));
+  const weeks=[];const last=Math.max(cur,16);for(let i=0;i<=last;i++)weeks.push(i);
+  const days=[0,1,2,3,4,5,6].map(i=>addDays(s.anchor,sel*7+i));
+  const wkTasks=s.tasks.filter(t=>t.wk===sel||(t.status!=='baggage'&&days.includes(t.date)));
+  const inWeek=t=>days.includes(t.date)||(t.status==='baggage'&&t.wk===sel);
+  const weekAll=s.tasks.filter(t=>t.wk===sel);
+  const pct=weekAll.length?Math.round(weekAll.filter(t=>t.status==='done').length/weekAll.length*100):0;
+  const bagList=s.tasks.filter(t=>t.status==='baggage').sort((x,y)=>x.orig<y.orig?-1:1);
+  const doneList=s.tasks.filter(t=>t.status==='done');
+  const doneDates=[...new Set(doneList.map(t=>t.doneDate))].sort().reverse();
+  const todayLeft=s.tasks.some(t=>t.status==='pending'&&t.date===today);
+  const msg=MSGS[Math.floor(elapsed/180)%MSGS.length];
+  const wkStats=w=>{const l=s.tasks.filter(t=>t.wk===w);return l.filter(t=>t.status==='done').length+'/'+l.length+' done'};
+
+  return html`<div>
+    ${toast?html`<div className="toast" ref=${tref}>${toast}</div>`:null}
+    <div className="app">
+      <aside className="panel side">
+        <div><h1>⏳ FocusWeek</h1><div className="mute">Today · ${dow(today)} ${fmt(today)}</div></div>
+        <div><h2>Weeks</h2><div className="wklist">${weeks.map(w=>html`<button key=${w} className=${'wk'+(w===sel?' sel':'')} onClick=${()=>setSel(w)}>
+          <b>Week ${w+1}${w===cur?' · now':''}</b><small>${fmt(addDays(s.anchor,w*7))} → ${fmt(wkEnd(s.anchor,w))} · ${wkStats(w)}</small></button>`)}</div></div>
+        <div><h2>Done so far</h2>${doneDates.length?doneDates.map(d=>html`<div className="dgrp" key=${d}><b className="mute">${dow(d)} ${fmt(d)}</b>${doneList.filter(t=>t.doneDate===d).map(t=>html`<div key=${t.id}>✓ ${t.title} <span className="mute mono">${t.hrs}h</span></div>`)}</div>`):html`<div className="mute">Nothing yet. First one is the hardest.</div>`}</div>
+      </aside>
+      <main className="main">
+        <div className="top"><div><h1>Plan of the week — Week ${sel+1}</h1><div className="mute">${fmt(days[0])} → ${fmt(days[6])} · pending targets roll to the next day at midnight, leftovers after day 7 go to Baggage.</div></div></div>
+        <div className="days">${days.map(d=>html`<${Day} key=${d} date=${d} today=${today} busy=${!!a} tasks=${s.tasks.filter(t=>t.date===d&&t.status!=='baggage')} onAdd=${add} onStart=${start} onDel=${del}/>`)}</div>
+      </main>
+      <${Focus} active=${a} task=${task} rem=${rem} msg=${msg} todayLeft=${todayLeft} onPause=${pause} onResume=${resume} onDone=${()=>finish('done')} onLost=${()=>finish('lost')}/>
+    </div>
+    <div className="bar"><span className="mono" style=${{fontSize:'.85rem'}}>Week ${sel+1}: ${pct}% done</span><div className="prog"><i style=${{width:pct+'%'}}></i></div>
+      <button className="btn sm bad" onClick=${()=>setBag(true)}>🧳 Baggage (${bagList.length})</button></div>
+    ${bag?html`<div className="modal" onClick=${()=>setBag(false)}><div className="sheet" onClick=${e=>e.stopPropagation()}>
+      <div className="top"><h1>🧳 Baggage bin</h1><button className="btn sm" onClick=${()=>setBag(false)}>Close</button></div>
+      <div className="mute" style=${{margin:'6px 0 12px'}}>Targets you lost or didn't finish within their week, grouped by the date they were planned.</div>
+      ${bagList.length?bagList.map(t=>html`<div className="task baggage" key=${t.id} style=${{marginBottom:'8px'}}>
+        <div className="tmain"><div className="ttitle">${t.title}</div><div className="tmeta"><span>Planned ${fmt(t.orig)}</span><span className="mono">${t.hrs}h</span><span className="chip bad">${t.reason==='lost'?'I LOST':'WEEK ENDED'}</span></div></div>
+        <button className="btn sm go" onClick=${()=>moveToday(t.id)}>Do today</button><button className="x" onClick=${()=>del(t.id)}>×</button></div>`):html`<div className="mute">Empty. Keep it that way.</div>`}
+    </div></div>`:null}
+  </div>`;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
